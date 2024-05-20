@@ -1,0 +1,9 @@
+{
+    "name": "complexchem",
+    "version": "0.1.1",
+    "title": "Complex Chemistry",
+    "author": "MrMeeseeks",
+    "factorio_version": "1.1",
+    "dependencies": ["base >= 1.1"],
+    "description": "Detailed and Dynamic guis for chemisty, as a learning tool for chemistry students. Specifically for VCE ( Equilibrium, Acid-Base, Redox, Green Chemistry, Organic Chemistry, and Electrochemistry)."
+  }
