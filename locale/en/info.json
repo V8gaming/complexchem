@@ -1,0 +1,25 @@
+{
+    "language-name": "English",
+    "font": {
+        "cc-italic":
+        [
+            "__complexchem__/fonts/TitilliumWeb-Italic.ttf",
+            "__complexchem__/fonts/NotoSans-Italic.ttf",
+            "__core__/fonts/NotoSansCJKtc-Regular.ttf",
+            "__core__/fonts/NotoSansThai-Regular.ttf",
+            "__core__/fonts/NotoSansArabic-Regular.ttf",
+            "__core__/fonts/NotoSansHebrew-Regular.ttf",
+            "__complexchem__/fonts/DejaVuSans-Oblique.ttf"
+        ],
+        "cc-bold-italic":
+        [
+            "__complexchem__/fonts/TitilliumWeb-BoldItalic.ttf",
+            "__complexchem__/fonts/NotoSans-BoldItalic.ttf",
+            "__core__/fonts/NotoSansCJKtc-Bold.ttf",
+            "__core__/fonts/NotoSansThai-Bold.ttf",
+            "__core__/fonts/NotoSansArabic-Bold.ttf",
+            "__core__/fonts/NotoSansHebrew-Bold.ttf",
+            "__complexchem__/fonts/DejaVuSans-BoldOblique.ttf"
+        ]
+    }
+}

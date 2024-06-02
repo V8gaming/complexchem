@@ -5,167 +5,91 @@ script.on_init(function()
         if freeplay["set_skip_intro"] then remote.call("freeplay", "set_skip_intro", true) end
         if freeplay["set_disable_crashsite"] then remote.call("freeplay", "set_disable_crashsite", true) end
     end
-    global.players = {}
-
-    for _, player in pairs(game.players) do
-        initialize_global(player)
-        build_interface(player)
-    end
 
 end)
-local item_sprites = {"inserter", "transport-belt", "stone-furnace", "assembling-machine-3", "logistic-chest-storage", "sulfur", "utility-science-pack", "laser-turret"}
-local function initialize_global(player)
-    global.players[player.index] = { controls_active = true, button_count = 0, selected_item = nil, elements = {} }
-end
-
-local function build_sprite_buttons(player)
-    local player_global = global.players[player.index]
-
-    local button_table = player.gui.screen.cc_main_frame.content_frame.button_frame.button_table
-    button_table.clear()
-
-    local number_of_buttons = player_global.button_count
-    for i = 1, number_of_buttons do
-        local sprite_name = item_sprites[i]
-        local button_style = (sprite_name == player_global.selected_item) and "yellow_slot_button" or "recipe_slot_button"
-        player_global.elements.button.add{type="sprite-button", sprite=("item/" .. sprite_name), tags={action="cc_select_button", item_name=sprite_name}, style=button_style}
-    end
-end
-
-local function build_interface(player)
-    local player_global = global.players[player.index]
-
-    local screen_element = player.gui.screen
-    local main_frame = screen_element.add{type="frame", name="cc_main_frame", caption={"cc.hello_world"}}
-    main_frame.style.size = {385, 165}
-    main_frame.auto_center = true
-
-    player.opened = main_frame
-    player_global.elements.main_frame = main_frame
-
-    local content_frame = main_frame.add{type="frame", name="content_frame", direction="vertical", style="cc_content_frame"}
-    local controls_flow = content_frame.add{type="flow", name="controls_flow", direction="horizontal", style="cc_controls_flow"}
-
-    local button_caption = (player_global.controls_active) and {"cc.deactivate"} or {"cc.activate"}
-    controls_flow.add{type="button", name="cc_controls_toggle", caption=button_caption}
-
-    local initial_button_count = player_global.button_count
-    local controls_slider = controls_flow.add{type="slider", name="cc_controls_slider", value=initial_button_count, minimum_value=0, maximum_value=#item_sprites, style="notched_slider", enabled=player_global.controls_active}
-    player_global.elements.controls_slider = controls_slider
-    local controls_textfield = controls_flow.add{type="textfield", name="cc_controls_textfield", text=tostring(initial_button_count), numeric=true, allow_decimal=false, allow_negative=false, style="cc_controls_textfield", enabled=player_global.controls_active}
-    player_global.elements.controls_textfield = controls_textfield
-
-    local button_frame = content_frame.add{type="frame", name="button_frame", direction="horizontal", style="cc_deep_frame"}
-    local button_table = button_frame.add{type="table", name="button_table", column_count=#item_sprites, style="filter_slot_table"}
-    player_global.elements.button = button_table
-    build_sprite_buttons(player)
-end
-
-local function build_accumulator_interface(player)
-    local screen_element = player.gui.relative
-    local anchor = {gui=defines.relative_gui_type.controller_gui, position=defines.relative_gui_position.top}
-    local accumulator = screen_element.add{type="frame", anchor=anchor, name="cc_accumulator", caption={"cc.accumulator"}}
-    accumulator.style.size = {385, 165}
-
-    local content_frame = accumulator.add{type="frame", name="content_frame", direction="vertical", style="cc_content_frame"}
-    
-end
-
-local function toggle_interface(player)
-    local player_global = global.players[player.index]
-    local main_frame = player_global.elements.main_frame
-
-    if main_frame == nil then
-        build_interface(player)
-    else
-        main_frame.destroy()
-        player_global.elements = {}
-    end
-end
+local markdown = require("./scripts/markdown")
 
 script.on_event(defines.events.on_player_created, function(event)
     local player = game.get_player(event.player_index)
-    initialize_global(player)
-    build_interface(player)
-end)
 
-script.on_event(defines.events.on_player_removed, function(event)
-    global.players[event.player_index] = nil
-end)
-
-
-script.on_event(defines.events.on_gui_opened, function(event)
-    if event.gui_type == defines.gui_type.entity and event.entity.type == "accumulator" then
-        local player = game.get_player(event.player_index)
-        build_accumulator_interface(player)
-
+    if player == nil then
+        return
     end
-end)
+    -- Example usage
+    local text = [[
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+*This is a italic.*
+_This is also italic text._
+**This is bold text.**
+__This is also bold text.__
+~~This is strike through text.~~
+* This should be a bullet point
+- This should also be a bullet point
+***This should be bold italic text.***
+___This should be bold italic text.___
 
-script.on_event(defines.events.on_gui_click, function(event)
-    if event.element.name == "cc_controls_toggle" then
-        local player_global = global.players[event.player_index]
-        player_global.controls_active = not player_global.controls_active
+---
 
-        local control_toggle = event.element
-        control_toggle.caption = (player_global.controls_active) and {"cc.deactivate"} or {"cc.activate"}
-        player_global.elements.controls_slider.enabled = player_global.controls_active
-        player_global.elements.controls_textfield.enabled = player_global.controls_active
-    elseif event.element.tags.action == "cc_select_button" then
-        local player = game.get_player(event.player_index)
-        local player_global = global.players[player.index]
+___
 
-        local clicked_item_name = event.element.tags.item_name
-        player_global.selected_item = clicked_item_name
+***
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| Cell 1   | Cell 2   | Cell 3   |
+]]
+    local gui_elements = markdown.render(text)
 
-        build_sprite_buttons(player)
-    end
+    -- Create a GUI frame and add the rendered elements to it
+    local screen_element = player.gui.screen
+    local frame = screen_element.add({
+        type = "frame",
+        name="cc.markdown_renderer",
+        caption = {"cc.markdown_renderer"},   
+    })
+    frame.style.minimal_height = 400
+    frame.style.minimal_width = 385
+    frame.style.vertically_stretchable = true
+    frame.auto_center = true
 
-
-end)
-script.on_event(defines.events.on_gui_value_changed, function(event)
-    if event.element.name == "cc_controls_slider" then
-        local player = game.get_player(event.player_index)
-        local player_global = global.players[player.index]
-
-        local new_button_count = event.element.slider_value
-        player_global.button_count = new_button_count
-
-        player_global.elements.controls_textfield.enabled = tostring(new_button_count)
-        build_sprite_buttons(player)
-    end
-end)
-
-script.on_event(defines.events.on_gui_text_changed, function(event)
-    if event.element.name == "cc_controls_textfield" then
-        local player = game.get_player(event.player_index)
-        local player_global = global.players[player.index]
-
-        local new_button_count = tonumber(event.element.text) or 0
-        local capped_button_count = math.min(new_button_count, #item_sprites)
-        player_global.button_count = capped_button_count
-
-        player_global.elements.controls_slider.slider_value = capped_button_count
-        build_sprite_buttons(player)
-    end
-end)
-
-script.on_event(defines.events.on_gui_closed, function(event)
-    if event.element and event.element.name == "cc_main_frame" then
-        local player = game.get_player(event.player_index)
-        toggle_interface(player)
-    end
-end)
-
-script.on_configuration_changed(function(config_changed_data)
-    if config_changed_data.mod_changes["complexchem"] then
-        for _, player in pairs(game.players) do
-            if player_global.elements.main_frame ~= nil then toggle_interface(player) end
+    local content_frame = frame.add{type="frame", name="content_frame", direction="vertical", style="cc_content_frame"}
+    for _, element in ipairs(gui_elements) do
+        if element.type == "table" then
+            local table_element = content_frame.add{type = "table", column_count = element.column_count, style = "cc_table"}
+            table_element.draw_horizontal_lines = true
+            table_element.draw_vertical_lines = true
+            table_element.draw_horizontal_line_after_headers = true
+            for _, row in ipairs(element.rows) do
+                for _, cell_value in ipairs(row.cells) do
+                    
+                    if row.border then
+                        -- search for alignment (:-, -:, :-:)
+                        local alignment = cell_value:match("^:?%-+")
+                        if alignment then
+                            local alignment_style = "left"
+                            if alignment:sub(-1) == ":" then
+                                alignment_style = "right"
+                            end
+                            table_element.style.horizontal_align = alignment_style
+                        else
+                            table_element.style.horizontal_align = "center"
+                        end
+                    else
+                        
+                        if row.header then
+                            table_element.add{type = "label", caption = cell_value, style = "cc_h1"}
+                        else
+    
+                            table_element.add{type = "label", caption = cell_value}
+                            
+                        end
+                    end                 
+                end
+            end
+        else
+            content_frame.add(element)
         end
     end
-end)
-
-script.on_event("cc_toggle_interface", function(event)
-    local player = game.get_player(event.player_index)
-    toggle_interface(player)
 end)
