@@ -54,7 +54,7 @@ local function render_markdown(text)
                 direction = "horizontal",
                 style = "cc_hline"
             }
-        elseif line:find("(?<!\*)\*{2}[^%*]+\*{2}(?!\*)") then
+        elseif line:find("(?<!\\*)\\*{2}[^%*]+\\*{2}(?!\\*)") then
             local bold_line = line:gsub("%*%*([^%*]+)%*%*", "%1")
             elements[#elements+1] = {
                 type = "label",
